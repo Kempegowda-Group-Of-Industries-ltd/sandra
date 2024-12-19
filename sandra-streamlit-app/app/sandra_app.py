@@ -1,7 +1,6 @@
 import sqlite3
 import pandas as pd
 import streamlit as st
-import altair as alt
 from pathlib import Path
 
 # Set up the Streamlit app configuration
@@ -13,60 +12,6 @@ st.set_page_config(
 
 # -----------------------------------------------------------------------------
 # Database setup functions
-def connect_db():
-    """Connects to the sqlite database."""
-    DB_FILENAME = Path(__file__).parent / "sandra.db"
-    db_already_exists = DB_FILENAME.exists()
-
-    conn = sqlite3.connect(DB_FILENAME)
-    db_was_just_created = not db_already_exists
-
-    return conn, db_was_just_created
-
-def initialize_db(conn):
-    """Initializes the database with tables and default data."""
-    cursor = conn.cursor()
-
-    # Create tables for energy storage, real-time monitoring, and applications
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS energy_storage (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            technology TEXT,
-            capacity REAL,
-            efficiency REAL,
-            status TEXT
-        )
-        """
-    )
-
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS real_time_monitoring (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            parameter TEXT,
-            value REAL,
-            unit TEXT,
-            timestamp TEXT
-        )
-        """
-    )
-
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS applications (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            sector TEXT,
-            description TEXT,
-            impact TEXT
-        )
-        """
-    )
-
-    # Insert default data if tables are empty
-    import sqlite3
-from pathlib import Path
-
 def connect_db():
     """Connects to the sqlite database."""
     DB_FILENAME = Path(__file__).parent / "sandra.db"
@@ -147,22 +92,9 @@ def initialize_db(conn):
                 ("Iron-Air Battery", 1200, 78, "Under Development")
             ]
         )
-        conn.commit()  # Commit the changes to the database
+        conn.commit()
 
-    conn.commit()  # Ensure that all changes are committed after initialization
-
-# Main part to test initialization
-if __name__ == "__main__":
-    conn, db_was_just_created = connect_db()
-
-    if db_was_just_created:
-        initialize_db(conn)
-        print("Database initialized and data inserted.")
-    else:
-        print("Database already exists.")
-    conn.close()
-
-
+    # Insert default data for applications if empty
     cursor.execute("SELECT COUNT(*) FROM applications")
     if cursor.fetchone()[0] == 0:
         cursor.executemany(
@@ -176,8 +108,7 @@ if __name__ == "__main__":
                 ("Industrial Use", "Heating processes for energy-intensive industries", "Lower fossil fuel dependence")
             ]
         )
-
-    conn.commit()
+        conn.commit()
 
 # -----------------------------------------------------------------------------
 # Load data from the database
@@ -216,6 +147,7 @@ def display_dataframes(conn):
 def main():
     st.title("SANDRA - Integrated Sand Battery Solution")
 
+    # Connect to the database and initialize if necessary
     conn, db_was_just_created = connect_db()
 
     if db_was_just_created:
@@ -278,61 +210,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# Additional DBMS functions for insert, update, delete, etc.
-
-# Dummy implementations for demonstration
-def create_table():
-    pass
-
-def insert_data(column1, column2, column3):
-    pass
-
-def get_data():
-    return []
-
-def update_data(id_input, column1_input, column2_input, column3_input):
-    pass
-
-def delete_data(id_input):
-    pass
-
-def commit_changes():
-    pass
-
-def drop_table():
-    pass
-
-# Data Visualization using Altair
-
-# Retrieve and Display Data
-st.header("Data Visualization")
-
-data = get_data()
-
-# Convert data into a pandas DataFrame for easy visualization
-df = pd.DataFrame(data, columns=["ID", "Column1", "Column2", "Column3"])
-
-# Display the data in Streamlit
-st.subheader("Data Table")
-st.dataframe(df)
-
-# Altair Visualization (Bar Chart)
-st.subheader("Altair Bar Chart")
-alt_chart = alt.Chart(df).mark_bar().encode(
-    x='Column1:N',
-    y='Column2:Q',
-    color='Column1:N'
-).properties(title='Altair Bar Chart of Column1 and Column2')
-
-st.altair_chart(alt_chart, use_container_width=True)
-
-# "AI Coming Soon" Section
-st.header("AI Functionality - Coming Soon!")
-st.write(""" 
-    We are working on integrating AI tools into the app, including:
-    - Predictive Modeling
-    - Machine Learning Model Training
-    - Automated Data Insights
-    - and more!
-""")
