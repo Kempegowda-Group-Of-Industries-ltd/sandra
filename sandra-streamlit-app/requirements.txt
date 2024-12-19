@@ -1,0 +1,9 @@
+sqlite3
+flask
+sqlite3
+sqlalchemy
+sqlite3
+streamlit==1.25.0
+pandas==2.1.2
+altair==5.0.1
+sqlite3  # Built-in, no need to install separately.
