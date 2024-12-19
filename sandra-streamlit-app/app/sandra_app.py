@@ -91,7 +91,7 @@ def initialize_db(conn):
     ("Molten Salt Battery", 2500, 65, "Under Testing"),
     ("Flexible Battery", 300, 90, "Under Development"),
     ("Iron-Air Battery", 1200, 78, "Under Development")
-]
+      ]
 
         )
 
