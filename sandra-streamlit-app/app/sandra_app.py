@@ -1,7 +1,6 @@
-import sqlite3 
+import sqlite3
 import pandas as pd
 import streamlit as st
-import plotly.express as px
 import altair as alt
 from pathlib import Path
 
@@ -218,7 +217,7 @@ def commit_changes():
 def drop_table():
     pass
 
-# Data Visualization using Plotly and Altair
+# Data Visualization using Altair
 
 # Retrieve and Display Data
 st.header("Data Visualization")
@@ -232,21 +231,6 @@ df = pd.DataFrame(data, columns=["ID", "Column1", "Column2", "Column3"])
 st.subheader("Data Table")
 st.dataframe(df)
 
-# Plotly Visualization (Bar Chart)
-st.subheader("Plotly Bar Plot")
-fig = px.bar(df, x='ID', y='Column2', title='Bar Plot of Column2 by ID')
-st.plotly_chart(fig)
-
-# Plotly Scatter Plot
-st.subheader("Plotly Scatter Plot")
-fig = px.scatter(df, x='Column1', y='Column2', title='Scatter Plot of Column1 vs Column2')
-st.plotly_chart(fig)
-
-# Plotly Line Chart
-st.subheader("Plotly Line Chart")
-fig = px.line(df, x="ID", y="Column3", title='Line Chart of Column3 by ID')
-st.plotly_chart(fig)
-
 # Altair Visualization (Bar Chart)
 st.subheader("Altair Bar Chart")
 alt_chart = alt.Chart(df).mark_bar().encode(
@@ -259,7 +243,7 @@ st.altair_chart(alt_chart, use_container_width=True)
 
 # "AI Coming Soon" Section
 st.header("AI Functionality - Coming Soon!")
-st.write("""
+st.write(""" 
     We are working on integrating AI tools into the app, including:
     - Predictive Modeling
     - Machine Learning Model Training
