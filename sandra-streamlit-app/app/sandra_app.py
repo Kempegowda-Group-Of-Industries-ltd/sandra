@@ -208,8 +208,7 @@ def main():
 
     conn.close()
 
-if __name__ == "__main__":
-    main()
+
 def search_data(conn, table_name, column_name, query):
     """Search for data in a specific column of a table."""
     cursor = conn.cursor()
@@ -317,3 +316,6 @@ while True:
     real_time_data = get_real_time_data(conn)
     st.write(f"Latest Data: {real_time_data}")
     time.sleep(5)  # Refresh every 5 seconds
+
+if __name__ == "__main__":
+    main()
