@@ -1,0 +1,72 @@
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Node.js
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+
+# JavaScript/TypeScript
+*.log
+*.out
+*.npmrc
+dist/
+build/
+
+# IDEs
+.vscode/
+.idea/
+*.iml
+
+# Temporary files
+*.bak
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# Test and Coverage
+coverage/
+*.coverage
+*.lcov
+
+# Dependency directories
+bower_components/
+jspm_packages/
+
+# Miscellaneous
+*.env
+.env.*
+.env.local
+.env.production
+
+# MacOS specific
+.AppleDouble
+.LSOverride
+
+# Build directories
+bin/
+obj/
+
+# Files created by build tools
+*.tgz
+*.gz
+
+# Python specific
+pip-wheel-metadata/
