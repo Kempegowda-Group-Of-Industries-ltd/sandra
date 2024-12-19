@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 #from app.database import connect_db, initialize_db, load_table
-from app.utils import generate_bar_chart
+#from app.utils import generate_bar_chart
 
 # Initialize the app
 def main():
