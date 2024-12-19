@@ -1,3 +1,15 @@
+import altair as alt
+
+def generate_bar_chart(df):
+    """Generates a bar chart for energy storage data."""
+    chart = alt.Chart(df).mark_bar().encode(
+        x='technology:N',
+        y='capacity:Q',
+        color='status:N'
+    ).properties(title='Energy Storage Technologies')
+    return chart
+
+
 """
 Utility module for the SANDRA Streamlit app.
 
