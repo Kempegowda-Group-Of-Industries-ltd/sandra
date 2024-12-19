@@ -210,3 +210,110 @@ def main():
 
 if __name__ == "__main__":
     main()
+def search_data(conn, table_name, column_name, query):
+    """Search for data in a specific column of a table."""
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT * FROM {table_name} WHERE {column_name} LIKE ?", ('%' + query + '%',))
+    data = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]
+    return pd.DataFrame(data, columns=columns)
+
+# In Streamlit UI, add search functionality
+search_query = st.text_input("Search Data:")
+if search_query:
+    st.subheader(f"Search Results for '{search_query}'")
+    energy_storage_df = search_data(conn, "energy_storage", "technology", search_query)
+    st.dataframe(energy_storage_df)
+
+
+# Dynamic Data Visualization with Altair
+st.header("Data Visualization")
+
+# Load energy storage data
+energy_storage_df = load_table(conn, "energy_storage")
+
+# Bar Chart for comparing efficiency and capacity
+st.subheader("Energy Storage: Efficiency vs Capacity")
+chart = alt.Chart(energy_storage_df).mark_bar().encode(
+    x='technology:N',
+    y='capacity:Q',
+    color='technology:N',
+    tooltip=['technology:N', 'capacity:Q', 'efficiency:Q']
+).properties(
+    title='Energy Storage Capacity and Efficiency'
+)
+st.altair_chart(chart, use_container_width=True)
+
+def update_entry(conn, table_name, entry_id, updated_values):
+    """Update a specific entry in the database."""
+    cursor = conn.cursor()
+    columns = ", ".join([f"{key} = ?" for key in updated_values.keys()])
+    values = tuple(updated_values.values()) + (entry_id,)
+    cursor.execute(f"UPDATE {table_name} SET {columns} WHERE id = ?", values)
+    conn.commit()
+
+# Streamlit UI for updating data
+st.subheader("Update Data")
+
+# Choose table and entry to update
+table_name = st.selectbox("Select Table", ["energy_storage", "real_time_monitoring", "applications"])
+entry_id = st.number_input("Entry ID", min_value=1)
+
+if table_name == "energy_storage":
+    tech = st.text_input("Technology")
+    capacity = st.number_input("Capacity (kWh)")
+    efficiency = st.number_input("Efficiency (%)")
+    status = st.text_input("Status")
+
+    if st.button("Update Entry"):
+        updated_values = {
+            "technology": tech,
+            "capacity": capacity,
+            "efficiency": efficiency,
+            "status": status
+        }
+        update_entry(conn, "energy_storage", entry_id, updated_values)
+        st.success(f"Entry with ID {entry_id} updated successfully!")
+
+def delete_entry(conn, table_name, entry_id):
+    """Delete an entry from a table."""
+    cursor = conn.cursor()
+    cursor.execute(f"DELETE FROM {table_name} WHERE id = ?", (entry_id,))
+    conn.commit()
+
+# Streamlit UI for deleting data
+st.subheader("Delete Data Entry")
+entry_id = st.number_input("Entry ID", min_value=1)
+
+if st.button("Delete Entry"):
+    delete_entry(conn, "energy_storage", entry_id)
+    st.success(f"Entry with ID {entry_id} deleted successfully!")
+
+
+def export_to_csv(df, filename):
+    """Export a DataFrame to a CSV file."""
+    df.to_csv(filename, index=False)
+
+# Streamlit UI for exporting data
+st.subheader("Export Data to CSV")
+if st.button("Export Energy Storage Data"):
+    energy_storage_df = load_table(conn, "energy_storage")
+    export_to_csv(energy_storage_df, "energy_storage_data.csv")
+    st.success("Data exported as energy_storage_data.csv")
+
+
+import time
+
+# Real-Time Monitoring Dashboard
+def get_real_time_data(conn):
+    """Fetch latest data from real-time monitoring."""
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM real_time_monitoring ORDER BY timestamp DESC LIMIT 1")
+    data = cursor.fetchone()
+    return data
+
+st.header("Real-Time Monitoring Dashboard")
+while True:
+    real_time_data = get_real_time_data(conn)
+    st.write(f"Latest Data: {real_time_data}")
+    time.sleep(5)  # Refresh every 5 seconds
