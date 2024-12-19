@@ -134,3 +134,110 @@ if __name__ == "__main__":
     initialize_db(connection)
     print("Database initialized.")
     connection.close()
+
+
+import sqlite3
+
+# Connect to the SQLite database
+def connect_db():
+    conn = sqlite3.connect('data/sandra.db')
+    return conn
+
+# Function to update data in the database
+def update_data(id, new_value):
+    conn = connect_db()
+    cursor = conn.cursor()
+    
+    # Example: Update a record with the given ID
+    cursor.execute("UPDATE table_name SET column_name = ? WHERE id = ?", (new_value, id))
+    
+    # Commit and close the connection
+    conn.commit()
+    conn.close()
+
+# Function to retrieve data from the database
+def get_data():
+    conn = connect_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT * FROM table_name")
+    data = cursor.fetchall()
+    
+    conn.close()
+    return data
+import sqlite3
+
+# Connect to the SQLite database
+def connect_db():
+    conn = sqlite3.connect('data/sandra.db')
+    return conn
+
+# Function to create a table
+def create_table():
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS table_name (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            column1 TEXT,
+            column2 INTEGER,
+            column3 REAL
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+# Function to insert data into the table
+def insert_data(column1, column2, column3):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO table_name (column1, column2, column3) 
+        VALUES (?, ?, ?)
+    ''', (column1, column2, column3))
+    conn.commit()
+    conn.close()
+
+# Function to retrieve data from the table
+def get_data():
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM table_name")
+    data = cursor.fetchall()
+    conn.close()
+    return data
+
+# Function to update data in the table
+def update_data(id, column1, column2, column3):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE table_name
+        SET column1 = ?, column2 = ?, column3 = ?
+        WHERE id = ?
+    ''', (column1, column2, column3, id))
+    conn.commit()
+    conn.close()
+
+# Function to delete data from the table
+def delete_data(id):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM table_name WHERE id = ?", (id,))
+    conn.commit()
+    conn.close()
+
+# Function to commit changes (for transactional purposes)
+def commit_changes():
+    conn = connect_db()
+    conn.commit()
+    conn.close()
+
+# Function to drop a table
+def drop_table():
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("DROP TABLE IF EXISTS table_name")
+    conn.commit()
+    conn.close()
+
