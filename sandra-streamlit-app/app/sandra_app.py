@@ -1,8 +1,6 @@
-import sqlite3
+import sqlite3 
 import pandas as pd
 import streamlit as st
-#import matplotlib.pyplot as plt
-import seaborn as sns
 import plotly.express as px
 import altair as alt
 from pathlib import Path
@@ -220,7 +218,7 @@ def commit_changes():
 def drop_table():
     pass
 
-# Data Visualization using different libraries
+# Data Visualization using Plotly and Altair
 
 # Retrieve and Display Data
 st.header("Data Visualization")
@@ -234,30 +232,22 @@ df = pd.DataFrame(data, columns=["ID", "Column1", "Column2", "Column3"])
 st.subheader("Data Table")
 st.dataframe(df)
 
-# Visualization using matplotlib (adjust based on your data)
-st.subheader("Matplotlib Bar Plot")
-fig, ax = plt.subplots()
-ax.bar(df['ID'], df['Column2'])  # Example: Bar plot based on Column2
-ax.set_xlabel('ID')
-ax.set_ylabel('Column2 Value')
-ax.set_title('Bar Plot of Column2 by ID')
+# Plotly Visualization (Bar Chart)
+st.subheader("Plotly Bar Plot")
+fig = px.bar(df, x='ID', y='Column2', title='Bar Plot of Column2 by ID')
+st.plotly_chart(fig)
 
-st.pyplot(fig)
+# Plotly Scatter Plot
+st.subheader("Plotly Scatter Plot")
+fig = px.scatter(df, x='Column1', y='Column2', title='Scatter Plot of Column1 vs Column2')
+st.plotly_chart(fig)
 
-# Seaborn Visualization
-st.subheader("Seaborn Scatter Plot")
-fig, ax = plt.subplots()
-sns.scatterplot(data=df, x='Column1', y='Column2', ax=ax)
-ax.set_title('Scatter Plot of Column1 vs Column2')
-
-st.pyplot(fig)
-
-# Plotly Visualization
+# Plotly Line Chart
 st.subheader("Plotly Line Chart")
 fig = px.line(df, x="ID", y="Column3", title='Line Chart of Column3 by ID')
 st.plotly_chart(fig)
 
-# Altair Visualization
+# Altair Visualization (Bar Chart)
 st.subheader("Altair Bar Chart")
 alt_chart = alt.Chart(df).mark_bar().encode(
     x='Column1:N',
