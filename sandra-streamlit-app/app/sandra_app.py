@@ -64,6 +64,60 @@ def initialize_db(conn):
     )
 
     # Insert default data if tables are empty
+    import sqlite3
+from pathlib import Path
+
+def connect_db():
+    """Connects to the sqlite database."""
+    DB_FILENAME = Path(__file__).parent / "sandra.db"
+    db_already_exists = DB_FILENAME.exists()
+
+    conn = sqlite3.connect(DB_FILENAME)
+    db_was_just_created = not db_already_exists
+
+    return conn, db_was_just_created
+
+def initialize_db(conn):
+    """Initializes the database with tables and default data."""
+    cursor = conn.cursor()
+
+    # Create tables for energy storage, real-time monitoring, and applications
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS energy_storage (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            technology TEXT,
+            capacity REAL,
+            efficiency REAL,
+            status TEXT
+        )
+        """
+    )
+
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS real_time_monitoring (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            parameter TEXT,
+            value REAL,
+            unit TEXT,
+            timestamp TEXT
+        )
+        """
+    )
+
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS applications (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sector TEXT,
+            description TEXT,
+            impact TEXT
+        )
+        """
+    )
+
+    # Insert default data if tables are empty
     cursor.execute("SELECT COUNT(*) FROM energy_storage")
     if cursor.fetchone()[0] == 0:
         cursor.executemany(
@@ -72,28 +126,42 @@ def initialize_db(conn):
             VALUES (?, ?, ?, ?)
             """,
             [
-    ("Sand Battery", 1000, 85, "Operational"),
-    ("Lithium Battery", 500, 90, "Operational"),
-    ("Flow Battery", 1500, 80, "Operational"),
-    ("Solid State Battery", 1200, 95, "Under Testing"),
-    ("Sodium-Ion Battery", 800, 75, "Operational"),
-    ("Lead-Acid Battery", 400, 70, "Operational"),
-    ("Zinc-Air Battery", 600, 78, "Operational"),
-    ("Nickel-Metal Hydride Battery", 700, 85, "Operational"),
-    ("Vanadium Redox Flow Battery", 2000, 70, "Operational"),
-    ("Supercapacitor", 100, 90, "Operational"),
-    ("Aluminum-Ion Battery", 1100, 88, "Under Development"),
-    ("Magnesium-Ion Battery", 500, 82, "Under Testing"),
-    ("Lithium-Sulfur Battery", 950, 92, "Under Development"),
-    ("Graphene Supercapacitor", 150, 85, "Operational"),
-    ("Hybrid Capacitor", 200, 80, "Operational"),
-    ("Bromine Flow Battery", 1800, 80, "Operational"),
-    ("Molten Salt Battery", 2500, 65, "Under Testing"),
-    ("Flexible Battery", 300, 90, "Under Development"),
-    ("Iron-Air Battery", 1200, 78, "Under Development")
-      ]
-
+                ("Sand Battery", 1000, 85, "Operational"),
+                ("Lithium Battery", 500, 90, "Operational"),
+                ("Flow Battery", 1500, 80, "Operational"),
+                ("Solid State Battery", 1200, 95, "Under Testing"),
+                ("Sodium-Ion Battery", 800, 75, "Operational"),
+                ("Lead-Acid Battery", 400, 70, "Operational"),
+                ("Zinc-Air Battery", 600, 78, "Operational"),
+                ("Nickel-Metal Hydride Battery", 700, 85, "Operational"),
+                ("Vanadium Redox Flow Battery", 2000, 70, "Operational"),
+                ("Supercapacitor", 100, 90, "Operational"),
+                ("Aluminum-Ion Battery", 1100, 88, "Under Development"),
+                ("Magnesium-Ion Battery", 500, 82, "Under Testing"),
+                ("Lithium-Sulfur Battery", 950, 92, "Under Development"),
+                ("Graphene Supercapacitor", 150, 85, "Operational"),
+                ("Hybrid Capacitor", 200, 80, "Operational"),
+                ("Bromine Flow Battery", 1800, 80, "Operational"),
+                ("Molten Salt Battery", 2500, 65, "Under Testing"),
+                ("Flexible Battery", 300, 90, "Under Development"),
+                ("Iron-Air Battery", 1200, 78, "Under Development")
+            ]
         )
+        conn.commit()  # Commit the changes to the database
+
+    conn.commit()  # Ensure that all changes are committed after initialization
+
+# Main part to test initialization
+if __name__ == "__main__":
+    conn, db_was_just_created = connect_db()
+
+    if db_was_just_created:
+        initialize_db(conn)
+        print("Database initialized and data inserted.")
+    else:
+        print("Database already exists.")
+    conn.close()
+
 
     cursor.execute("SELECT COUNT(*) FROM applications")
     if cursor.fetchone()[0] == 0:
