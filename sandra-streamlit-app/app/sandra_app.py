@@ -72,9 +72,27 @@ def initialize_db(conn):
             VALUES (?, ?, ?, ?)
             """,
             [
-                ("Sand Battery", 1000, 85, "Operational"),
-                ("Lithium Battery", 500, 90, "Operational")
-            ]
+    ("Sand Battery", 1000, 85, "Operational"),
+    ("Lithium Battery", 500, 90, "Operational"),
+    ("Flow Battery", 1500, 80, "Operational"),
+    ("Solid State Battery", 1200, 95, "Under Testing"),
+    ("Sodium-Ion Battery", 800, 75, "Operational"),
+    ("Lead-Acid Battery", 400, 70, "Operational"),
+    ("Zinc-Air Battery", 600, 78, "Operational"),
+    ("Nickel-Metal Hydride Battery", 700, 85, "Operational"),
+    ("Vanadium Redox Flow Battery", 2000, 70, "Operational"),
+    ("Supercapacitor", 100, 90, "Operational"),
+    ("Aluminum-Ion Battery", 1100, 88, "Under Development"),
+    ("Magnesium-Ion Battery", 500, 82, "Under Testing"),
+    ("Lithium-Sulfur Battery", 950, 92, "Under Development"),
+    ("Graphene Supercapacitor", 150, 85, "Operational"),
+    ("Hybrid Capacitor", 200, 80, "Operational"),
+    ("Bromine Flow Battery", 1800, 80, "Operational"),
+    ("Molten Salt Battery", 2500, 65, "Under Testing"),
+    ("Flexible Battery", 300, 90, "Under Development"),
+    ("Iron-Air Battery", 1200, 78, "Under Development")
+]
+
         )
 
     cursor.execute("SELECT COUNT(*) FROM applications")
