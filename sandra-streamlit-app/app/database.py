@@ -1,3 +1,59 @@
+import sqlite3
+from pathlib import Path
+
+def connect_db():
+    """Connects to the SQLite database."""
+    DB_FILENAME = Path(__file__).parent.parent / "data" / "sandra.db"
+    db_already_exists = DB_FILENAME.exists()
+
+    conn = sqlite3.connect(DB_FILENAME)
+    db_was_just_created = not db_already_exists
+    return conn, db_was_just_created
+
+def initialize_db(conn):
+    """Initializes the database with tables and default data."""
+    cursor = conn.cursor()
+
+    # Create necessary tables
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS energy_storage (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            technology TEXT,
+            capacity REAL,
+            efficiency REAL,
+            status TEXT
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS real_time_monitoring (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            parameter TEXT,
+            value REAL,
+            unit TEXT,
+            timestamp TEXT
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS applications (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sector TEXT,
+            description TEXT,
+            impact TEXT
+        )
+    """)
+
+    conn.commit()
+
+def load_table(conn, table_name):
+    """Loads data from a specific table in the database."""
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT * FROM {table_name}")
+    data = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]
+    return data, columns
+
 """
 Database management module for the SANDRA Streamlit app.
 
