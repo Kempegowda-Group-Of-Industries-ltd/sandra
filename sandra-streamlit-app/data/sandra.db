@@ -1,0 +1,190 @@
+"""
+Database module for SANDRA application.
+
+This module handles all database interactions, including initialization,
+data insertion, updates, deletions, and queries.
+"""
+
+import sqlite3
+from sqlite3 import Error
+
+
+class Database:
+    def __init__(self, db_path="sandra.db"):
+        """
+        Initialize the database connection.
+
+        Parameters:
+            db_path (str): Path to the SQLite database file.
+        """
+        self.db_path = db_path
+        self.connection = None
+        self.initialize_database()
+
+    def create_connection(self):
+        """
+        Create a database connection to the SQLite database.
+        """
+        try:
+            self.connection = sqlite3.connect(self.db_path)
+            print("Connection to SQLite database established.")
+        except Error as e:
+            print(f"Error connecting to database: {e}")
+            raise
+
+    def close_connection(self):
+        """
+        Close the database connection.
+        """
+        if self.connection:
+            self.connection.close()
+            print("Database connection closed.")
+
+    def initialize_database(self):
+        """
+        Initialize the database with required tables if they don't exist.
+        """
+        self.create_connection()
+        create_table_query = """
+        CREATE TABLE IF NOT EXISTS features (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            description TEXT,
+            status TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        """
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(create_table_query)
+            self.connection.commit()
+            print("Database initialized with 'features' table.")
+        except Error as e:
+            print(f"Error initializing database: {e}")
+        finally:
+            self.close_connection()
+
+    def insert_feature(self, name, description, status):
+        """
+        Insert a new feature into the database.
+
+        Parameters:
+            name (str): Name of the feature.
+            description (str): Description of the feature.
+            status (str): Status of the feature.
+
+        Returns:
+            int: The ID of the inserted feature.
+        """
+        self.create_connection()
+        insert_query = """
+        INSERT INTO features (name, description, status)
+        VALUES (?, ?, ?);
+        """
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(insert_query, (name, description, status))
+            self.connection.commit()
+            feature_id = cursor.lastrowid
+            print(f"Feature inserted with ID: {feature_id}")
+            return feature_id
+        except Error as e:
+            print(f"Error inserting feature: {e}")
+            return None
+        finally:
+            self.close_connection()
+
+    def get_features(self):
+        """
+        Retrieve all features from the database.
+
+        Returns:
+            list: A list of tuples representing features.
+        """
+        self.create_connection()
+        select_query = "SELECT * FROM features;"
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(select_query)
+            features = cursor.fetchall()
+            return features
+        except Error as e:
+            print(f"Error retrieving features: {e}")
+            return []
+        finally:
+            self.close_connection()
+
+    def update_feature(self, feature_id, name=None, description=None, status=None):
+        """
+        Update an existing feature in the database.
+
+        Parameters:
+            feature_id (int): ID of the feature to update.
+            name (str): New name of the feature (optional).
+            description (str): New description of the feature (optional).
+            status (str): New status of the feature (optional).
+        """
+        self.create_connection()
+        update_query = """
+        UPDATE features
+        SET name = COALESCE(?, name),
+            description = COALESCE(?, description),
+            status = COALESCE(?, status)
+        WHERE id = ?;
+        """
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(update_query, (name, description, status, feature_id))
+            self.connection.commit()
+            print(f"Feature with ID {feature_id} updated.")
+        except Error as e:
+            print(f"Error updating feature: {e}")
+        finally:
+            self.close_connection()
+
+    def delete_feature(self, feature_id):
+        """
+        Delete a feature from the database.
+
+        Parameters:
+            feature_id (int): ID of the feature to delete.
+        """
+        self.create_connection()
+        delete_query = "DELETE FROM features WHERE id = ?;"
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(delete_query, (feature_id,))
+            self.connection.commit()
+            print(f"Feature with ID {feature_id} deleted.")
+        except Error as e:
+            print(f"Error deleting feature: {e}")
+        finally:
+            self.close_connection()
+
+
+if __name__ == "__main__":
+    # Example usage of the Database class
+    db = Database()
+
+    # Insert a feature
+    feature_id = db.insert_feature(
+        name="New Feature",
+        description="This is a new feature.",
+        status="active"
+    )
+
+    # Get all features
+    features = db.get_features()
+    print("All features:", features)
+
+    # Update a feature
+    if feature_id:
+        db.update_feature(
+            feature_id,
+            name="Updated Feature",
+            status="inactive"
+        )
+
+    # Delete a feature
+    if feature_id:
+        db.delete_feature(feature_id)
