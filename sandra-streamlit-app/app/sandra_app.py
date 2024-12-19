@@ -195,7 +195,9 @@ if __name__ == "__main__":
 import streamlit as st
 import pandas as pd
 #import matplotlib.pyplot as plt
-from app.database import create_table, insert_data, get_data, update_data, delete_data, commit_changes, drop_table
+from .database import create_table, insert_data, get_data, update_data, delete_data, commit_changes, drop_table
+
+#from app.database import create_table, insert_data, get_data, update_data, delete_data, commit_changes, drop_table
 
 # Streamlit app title
 st.title("Sandra Streamlit App - DBMS Functions and Visualization")
