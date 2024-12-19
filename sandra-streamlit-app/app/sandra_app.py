@@ -1,7 +1,11 @@
-from pathlib import Path
 import sqlite3
-import streamlit as st
 import pandas as pd
+import streamlit as st
+import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly.express as px
+import altair as alt
+from pathlib import Path
 
 # Set up the Streamlit app configuration
 st.set_page_config(
@@ -192,159 +196,31 @@ def main():
 if __name__ == "__main__":
     main()
 
-import streamlit as st
-import pandas as pd
-#import matplotlib.pyplot as plt
-from .database import create_table, insert_data, get_data, update_data, delete_data, commit_changes, drop_table
+# Additional DBMS functions for insert, update, delete, etc.
 
-#from app.database import create_table, insert_data, get_data, update_data, delete_data, commit_changes, drop_table
+# Dummy implementations for demonstration
+def create_table():
+    pass
 
-# Streamlit app title
-st.title("Sandra Streamlit App - DBMS Functions and Visualization")
+def insert_data(column1, column2, column3):
+    pass
 
-# Create Table button
-if st.button("Create Table"):
-    create_table()
-    st.success("Table created successfully!")
+def get_data():
+    return []
 
-# Insert Data Section
-st.header("Insert Data")
-column1_input = st.text_input("Enter value for Column1:")
-column2_input = st.number_input("Enter value for Column2:", min_value=0)
-column3_input = st.number_input("Enter value for Column3:", min_value=0.0)
+def update_data(id_input, column1_input, column2_input, column3_input):
+    pass
 
-if st.button("Insert Data"):
-    if column1_input and column2_input is not None and column3_input is not None:
-        insert_data(column1_input, column2_input, column3_input)
-        st.success("Data inserted successfully!")
-    else:
-        st.error("Please provide values for all columns.")
+def delete_data(id_input):
+    pass
 
-# Update Data Section
-st.header("Update Data")
-id_input_update = st.number_input("Enter ID of the record to update:", min_value=1)
-column1_input_update = st.text_input("Enter new value for Column1:")
-column2_input_update = st.number_input("Enter new value for Column2:", min_value=0)
-column3_input_update = st.number_input("Enter new value for Column3:", min_value=0.0)
+def commit_changes():
+    pass
 
-if st.button("Update Data"):
-    if id_input_update and column1_input_update and column2_input_update is not None and column3_input_update is not None:
-        update_data(id_input_update, column1_input_update, column2_input_update, column3_input_update)
-        st.success("Data updated successfully!")
-    else:
-        st.error("Please provide all fields for updating.")
+def drop_table():
+    pass
 
-# Delete Data Section
-st.header("Delete Data")
-id_input_delete = st.number_input("Enter ID of the record to delete:", min_value=1)
-
-if st.button("Delete Data"):
-    if id_input_delete:
-        delete_data(id_input_delete)
-        st.success("Data deleted successfully!")
-    else:
-        st.error("Please provide an ID for deletion.")
-
-# Commit Changes Section (For transactional purposes)
-st.header("Commit Changes")
-if st.button("Commit Changes"):
-    commit_changes()
-    st.success("Changes committed successfully!")
-
-# Drop Table Section
-st.header("Drop Table")
-if st.button("Drop Table"):
-    drop_table()
-    st.success("Table dropped successfully!")
-
-# Retrieve and Display Data
-st.header("Data Visualization")
-
-data = get_data()
-
-# Convert data into a pandas DataFrame for easy visualization
-df = pd.DataFrame(data, columns=["ID", "Column1", "Column2", "Column3"])
-
-# Display the data in Streamlit
-st.subheader("Data Table")
-st.dataframe(df)
-
-# Visualization using matplotlib (adjust based on your data)
-st.subheader("Data Visualization (Example)")
-fig, ax = plt.subplots()
-ax.bar(df['ID'], df['Column2'])  # Example: Bar plot based on Column2
-ax.set_xlabel('ID')
-ax.set_ylabel('Column2 Value')
-ax.set_title('Bar Plot of Column2 by ID')
-
-st.pyplot(fig)
-
-
-import streamlit as st
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-import plotly.express as px
-import altair as alt
-from app.database import create_table, insert_data, get_data, update_data, delete_data, commit_changes, drop_table
-
-# Streamlit app title
-st.title("Sandra Streamlit App - DBMS Functions and Visualization")
-
-# Create Table button
-if st.button("Create Table"):
-    create_table()
-    st.success("Table created successfully!")
-
-# Insert Data Section
-st.header("Insert Data")
-column1_input = st.text_input("Enter value for Column1:")
-column2_input = st.number_input("Enter value for Column2:", min_value=0)
-column3_input = st.number_input("Enter value for Column3:", min_value=0.0)
-
-if st.button("Insert Data"):
-    if column1_input and column2_input is not None and column3_input is not None:
-        insert_data(column1_input, column2_input, column3_input)
-        st.success("Data inserted successfully!")
-    else:
-        st.error("Please provide values for all columns.")
-
-# Update Data Section
-st.header("Update Data")
-id_input_update = st.number_input("Enter ID of the record to update:", min_value=1)
-column1_input_update = st.text_input("Enter new value for Column1:")
-column2_input_update = st.number_input("Enter new value for Column2:", min_value=0)
-column3_input_update = st.number_input("Enter new value for Column3:", min_value=0.0)
-
-if st.button("Update Data"):
-    if id_input_update and column1_input_update and column2_input_update is not None and column3_input_update is not None:
-        update_data(id_input_update, column1_input_update, column2_input_update, column3_input_update)
-        st.success("Data updated successfully!")
-    else:
-        st.error("Please provide all fields for updating.")
-
-# Delete Data Section
-st.header("Delete Data")
-id_input_delete = st.number_input("Enter ID of the record to delete:", min_value=1)
-
-if st.button("Delete Data"):
-    if id_input_delete:
-        delete_data(id_input_delete)
-        st.success("Data deleted successfully!")
-    else:
-        st.error("Please provide an ID for deletion.")
-
-# Commit Changes Section (For transactional purposes)
-st.header("Commit Changes")
-if st.button("Commit Changes"):
-    commit_changes()
-    st.success("Changes committed successfully!")
-
-# Drop Table Section
-st.header("Drop Table")
-if st.button("Drop Table"):
-    drop_table()
-    st.success("Table dropped successfully!")
+# Data Visualization using different libraries
 
 # Retrieve and Display Data
 st.header("Data Visualization")
@@ -400,4 +276,3 @@ st.write("""
     - Automated Data Insights
     - and more!
 """)
-
