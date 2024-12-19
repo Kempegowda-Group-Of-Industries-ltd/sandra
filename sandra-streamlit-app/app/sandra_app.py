@@ -34,18 +34,18 @@ def initialize_db(conn):
     """)
     conn.commit()
 
-# Adding data to the tables
+# Add data
 def add_data(conn, table_name, name, description):
     cursor = conn.cursor()
     cursor.execute(f"INSERT INTO {table_name} (name, description) VALUES (?, ?)", (name, description))
     conn.commit()
 
-# Fetch data from a specific table
+# Fetch data
 def fetch_data(conn, table_name):
     query = f"SELECT * FROM {table_name}"
     return pd.read_sql(query, conn)
 
-# Update data in the table
+# Update data
 def update_data(conn, table_name, record_id, name, description):
     cursor = conn.cursor()
     cursor.execute(f"""
@@ -55,11 +55,22 @@ def update_data(conn, table_name, record_id, name, description):
     """, (name, description, record_id))
     conn.commit()
 
+# Delete data
+def delete_data(conn, table_name, record_id):
+    cursor = conn.cursor()
+    cursor.execute(f"DELETE FROM {table_name} WHERE id = ?", (record_id,))
+    conn.commit()
+
+# Search data
+def search_data(conn, table_name, keyword):
+    query = f"SELECT * FROM {table_name} WHERE name LIKE ? OR description LIKE ?"
+    return pd.read_sql(query, conn, params=(f"%{keyword}%", f"%{keyword}%"))
+
 # Streamlit App
 st.title("Sand Battery Solutions Database")
 
 # Sidebar for navigation
-nav = st.sidebar.radio("Navigation", ["Database Overview", "Add Data", "Update Data", "Visualizations"])
+nav = st.sidebar.radio("Navigation", ["Database Overview", "Add Data", "Update Data", "Delete Data", "Search Data", "Visualizations"])
 
 # Connect to database and initialize
 conn = connect_db()
@@ -103,6 +114,30 @@ elif nav == "Update Data":
     else:
         st.warning("No data available in the table")
 
+elif nav == "Delete Data":
+    st.header("Delete Data")
+    table = st.selectbox("Choose a table to delete data", ["energy_storage", "real_time_monitoring", "applications"])
+    data = fetch_data(conn, table)
+    if not data.empty:
+        st.dataframe(data)
+        record_id = st.number_input("Enter ID of the record to delete", min_value=1, step=1)
+        if st.button("Delete Data"):
+            delete_data(conn, table, record_id)
+            st.success("Data deleted successfully")
+    else:
+        st.warning("No data available in the table")
+
+elif nav == "Search Data":
+    st.header("Search Data")
+    table = st.selectbox("Choose a table to search data", ["energy_storage", "real_time_monitoring", "applications"])
+    keyword = st.text_input("Enter a keyword to search")
+    if st.button("Search"):
+        data = search_data(conn, table, keyword)
+        if not data.empty:
+            st.dataframe(data)
+        else:
+            st.warning("No matching records found")
+
 elif nav == "Visualizations":
     st.header("Visualizations")
     table = st.selectbox("Choose a table to visualize", ["energy_storage", "real_time_monitoring", "applications"])
@@ -110,7 +145,7 @@ elif nav == "Visualizations":
     if not data.empty:
         chart = alt.Chart(data).mark_bar().encode(
             x="id:O",
-            y="name:N",
+            y=alt.Y("name:N", sort=None),
             tooltip=["name", "description"]
         ).interactive()
         st.altair_chart(chart, use_container_width=True)
