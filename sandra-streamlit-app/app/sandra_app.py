@@ -1,3 +1,113 @@
+import streamlit as st
+import pandas as pd
+import altair as alt
+from app.database import connect_db, initialize_db, load_table
+from app.utils import generate_bar_chart
+
+# Initialize the app
+def main():
+    st.set_page_config(page_title="SANDRA Battery", page_icon=":battery:", layout="wide")
+    st.title("SANDRA - Integrated Sand Battery Solution")
+
+    conn, db_was_just_created = connect_db()
+    if db_was_just_created:
+        initialize_db(conn)
+
+    # Sidebar navigation
+    st.sidebar.title("Navigation")
+    options = ["Database Overview", "Add Data", "Visualization", "Export Data"]
+    choice = st.sidebar.radio("Select an option", options)
+
+    if choice == "Database Overview":
+        display_dataframes(conn)
+
+    elif choice == "Add Data":
+        add_data(conn)
+
+    elif choice == "Visualization":
+        visualize_data(conn)
+
+    elif choice == "Export Data":
+        export_data(conn)
+
+    conn.close()
+
+# Display data from the database
+def display_dataframes(conn):
+    st.header("SANDRA Database Overview")
+    tables = ["energy_storage", "real_time_monitoring", "applications"]
+
+    for table in tables:
+        data, columns = load_table(conn, table)
+        df = pd.DataFrame(data, columns=columns)
+        st.subheader(f"{table.replace('_', ' ').title()}")
+        st.dataframe(df)
+
+# Add new data to the database
+def add_data(conn):
+    st.subheader("Add New Data")
+    table_name = st.selectbox("Select Table", ["energy_storage", "real_time_monitoring", "applications"])
+
+    if table_name == "energy_storage":
+        add_energy_storage(conn)
+    elif table_name == "real_time_monitoring":
+        add_monitoring_data(conn)
+    elif table_name == "applications":
+        add_application(conn)
+
+# Helper functions to add data
+def add_energy_storage(conn):
+    technology = st.text_input("Technology")
+    capacity = st.number_input("Capacity (kWh)", min_value=0.0)
+    efficiency = st.number_input("Efficiency (%)", min_value=0.0, max_value=100.0)
+    status = st.text_input("Status")
+    if st.button("Add Entry"):
+        conn.execute(
+            "INSERT INTO energy_storage (technology, capacity, efficiency, status) VALUES (?, ?, ?, ?)",
+            (technology, capacity, efficiency, status)
+        )
+        conn.commit()
+        st.success("Entry added successfully!")
+
+# Similar functions for other data tables (real_time_monitoring, applications)
+
+# Visualize data with charts
+def visualize_data(conn):
+    st.header("Data Visualization")
+    table_name = st.selectbox("Select Data for Visualization", ["energy_storage", "real_time_monitoring"])
+    
+    if table_name == "energy_storage":
+        visualize_energy_storage(conn)
+    elif table_name == "real_time_monitoring":
+        visualize_monitoring(conn)
+
+# Helper to generate bar chart
+def visualize_energy_storage(conn):
+    data, columns = load_table(conn, "energy_storage")
+    df = pd.DataFrame(data, columns=columns)
+    chart = generate_bar_chart(df)
+    st.altair_chart(chart, use_container_width=True)
+
+# Export data to CSV
+def export_data(conn):
+    st.subheader("Export Data")
+    table_name = st.selectbox("Select Table", ["energy_storage", "real_time_monitoring", "applications"])
+
+    data, columns = load_table(conn, table_name)
+    df = pd.DataFrame(data, columns=columns)
+
+    st.download_button("Download CSV", df.to_csv(), "data.csv", "text/csv")
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+
+
+
 import sqlite3
 import pandas as pd
 import streamlit as st
