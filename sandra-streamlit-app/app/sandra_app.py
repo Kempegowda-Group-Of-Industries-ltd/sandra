@@ -1,434 +1,118 @@
-import streamlit as st
-import pandas as pd
-import altair as alt
-#from app.database import connect_db, initialize_db, load_table
-#from app.utils import generate_bar_chart
-
-# Initialize the app
-def main():
-    st.set_page_config(page_title="SANDRA Battery", page_icon=":battery:", layout="wide")
-    st.title("SANDRA - Integrated Sand Battery Solution")
-
-    conn, db_was_just_created = connect_db()
-    if db_was_just_created:
-        initialize_db(conn)
-
-    # Sidebar navigation
-    st.sidebar.title("Navigation")
-    options = ["Database Overview", "Add Data", "Visualization", "Export Data"]
-    choice = st.sidebar.radio("Select an option", options)
-
-    if choice == "Database Overview":
-        display_dataframes(conn)
-
-    elif choice == "Add Data":
-        add_data(conn)
-
-    elif choice == "Visualization":
-        visualize_data(conn)
-
-    elif choice == "Export Data":
-        export_data(conn)
-
-    conn.close()
-
-# Display data from the database
-def display_dataframes(conn):
-    st.header("SANDRA Database Overview")
-    tables = ["energy_storage", "real_time_monitoring", "applications"]
-
-    for table in tables:
-        data, columns = load_table(conn, table)
-        df = pd.DataFrame(data, columns=columns)
-        st.subheader(f"{table.replace('_', ' ').title()}")
-        st.dataframe(df)
-
-# Add new data to the database
-def add_data(conn):
-    st.subheader("Add New Data")
-    table_name = st.selectbox("Select Table", ["energy_storage", "real_time_monitoring", "applications"])
-
-    if table_name == "energy_storage":
-        add_energy_storage(conn)
-    elif table_name == "real_time_monitoring":
-        add_monitoring_data(conn)
-    elif table_name == "applications":
-        add_application(conn)
-
-# Helper functions to add data
-def add_energy_storage(conn):
-    technology = st.text_input("Technology")
-    capacity = st.number_input("Capacity (kWh)", min_value=0.0)
-    efficiency = st.number_input("Efficiency (%)", min_value=0.0, max_value=100.0)
-    status = st.text_input("Status")
-    if st.button("Add Entry"):
-        conn.execute(
-            "INSERT INTO energy_storage (technology, capacity, efficiency, status) VALUES (?, ?, ?, ?)",
-            (technology, capacity, efficiency, status)
-        )
-        conn.commit()
-        st.success("Entry added successfully!")
-
-# Similar functions for other data tables (real_time_monitoring, applications)
-
-# Visualize data with charts
-def visualize_data(conn):
-    st.header("Data Visualization")
-    table_name = st.selectbox("Select Data for Visualization", ["energy_storage", "real_time_monitoring"])
-    
-    if table_name == "energy_storage":
-        visualize_energy_storage(conn)
-    elif table_name == "real_time_monitoring":
-        visualize_monitoring(conn)
-
-# Helper to generate bar chart
-def visualize_energy_storage(conn):
-    data, columns = load_table(conn, "energy_storage")
-    df = pd.DataFrame(data, columns=columns)
-    chart = generate_bar_chart(df)
-    st.altair_chart(chart, use_container_width=True)
-
-# Export data to CSV
-def export_data(conn):
-    st.subheader("Export Data")
-    table_name = st.selectbox("Select Table", ["energy_storage", "real_time_monitoring", "applications"])
-
-    data, columns = load_table(conn, table_name)
-    df = pd.DataFrame(data, columns=columns)
-
-    st.download_button("Download CSV", df.to_csv(), "data.csv", "text/csv")
-
-if __name__ == "__main__":
-    main()
-
-
-
-
-
-
-
-
 import sqlite3
 import pandas as pd
 import streamlit as st
-from pathlib import Path
+import altair as alt
 
-# Set up the Streamlit app configuration
-st.set_page_config(
-    page_title="SANDRA - Integrated Sand Battery Solution",
-    page_icon=":battery:",
-    layout="wide"
-)
-
-# -----------------------------------------------------------------------------
-# Database setup functions
+# Database connection and initialization
 def connect_db():
-    """Connects to the sqlite database."""
-    DB_FILENAME = Path(__file__).parent / "sandra.db"
-    db_already_exists = DB_FILENAME.exists()
-
-    conn = sqlite3.connect(DB_FILENAME)
-    db_was_just_created = not db_already_exists
-
-    return conn, db_was_just_created
+    conn = sqlite3.connect("sand_battery.db")
+    return conn
 
 def initialize_db(conn):
-    """Initializes the database with tables and default data."""
     cursor = conn.cursor()
-
-    # Create tables for energy storage, real-time monitoring, and applications
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS energy_storage (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            technology TEXT,
-            capacity REAL,
-            efficiency REAL,
-            status TEXT
-        )
-        """
+    # Create tables if they don't exist
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS energy_storage (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        description TEXT
     )
-
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS real_time_monitoring (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            parameter TEXT,
-            value REAL,
-            unit TEXT,
-            timestamp TEXT
-        )
-        """
+    """)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS real_time_monitoring (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        description TEXT
     )
-
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS applications (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            sector TEXT,
-            description TEXT,
-            impact TEXT
-        )
-        """
+    """)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS applications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        description TEXT
     )
-
-    # Insert default data if tables are empty
-    cursor.execute("SELECT COUNT(*) FROM energy_storage")
-    if cursor.fetchone()[0] == 0:
-        cursor.executemany(
-            """
-            INSERT INTO energy_storage (technology, capacity, efficiency, status)
-            VALUES (?, ?, ?, ?)
-            """,
-            [
-                ("Sand Battery", 1000, 85, "Operational"),
-                ("Lithium Battery", 500, 90, "Operational"),
-                ("Flow Battery", 1500, 80, "Operational"),
-                ("Solid State Battery", 1200, 95, "Under Testing"),
-                ("Sodium-Ion Battery", 800, 75, "Operational"),
-                ("Lead-Acid Battery", 400, 70, "Operational"),
-                ("Zinc-Air Battery", 600, 78, "Operational"),
-                ("Nickel-Metal Hydride Battery", 700, 85, "Operational"),
-                ("Vanadium Redox Flow Battery", 2000, 70, "Operational"),
-                ("Supercapacitor", 100, 90, "Operational"),
-                ("Aluminum-Ion Battery", 1100, 88, "Under Development"),
-                ("Magnesium-Ion Battery", 500, 82, "Under Testing"),
-                ("Lithium-Sulfur Battery", 950, 92, "Under Development"),
-                ("Graphene Supercapacitor", 150, 85, "Operational"),
-                ("Hybrid Capacitor", 200, 80, "Operational"),
-                ("Bromine Flow Battery", 1800, 80, "Operational"),
-                ("Molten Salt Battery", 2500, 65, "Under Testing"),
-                ("Flexible Battery", 300, 90, "Under Development"),
-                ("Iron-Air Battery", 1200, 78, "Under Development")
-            ]
-        )
-        conn.commit()
-
-    # Insert default data for applications if empty
-    cursor.execute("SELECT COUNT(*) FROM applications")
-    if cursor.fetchone()[0] == 0:
-        cursor.executemany(
-            """
-            INSERT INTO applications (sector, description, impact)
-            VALUES (?, ?, ?)
-            """,
-            [
-                ("Rural Electrification", "Off-grid energy storage for remote areas", "Improved energy access"),
-                ("Urban Smart Grids", "Stabilize grid supply during peak hours", "Reduced energy wastage"),
-                ("Industrial Use", "Heating processes for energy-intensive industries", "Lower fossil fuel dependence")
-            ]
-        )
-        conn.commit()
-
-# -----------------------------------------------------------------------------
-# Load data from the database
-def load_table(conn, table_name):
-    """Loads data from a specific table in the database."""
-    cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM {table_name}")
-    data = cursor.fetchall()
-
-    columns = [description[0] for description in cursor.description]
-    return pd.DataFrame(data, columns=columns)
-
-# -----------------------------------------------------------------------------
-# Streamlit UI Components
-def display_dataframes(conn):
-    """Displays the database tables as dataframes in the Streamlit app."""
-    st.header("SANDRA Database Overview")
-
-    # Display energy storage data
-    st.subheader("Energy Storage")
-    energy_storage_df = load_table(conn, "energy_storage")
-    st.dataframe(energy_storage_df)
-
-    # Display real-time monitoring data
-    st.subheader("Real-Time Monitoring")
-    monitoring_df = load_table(conn, "real_time_monitoring")
-    st.dataframe(monitoring_df)
-
-    # Display applications data
-    st.subheader("Applications")
-    applications_df = load_table(conn, "applications")
-    st.dataframe(applications_df)
-
-# -----------------------------------------------------------------------------
-# Main Streamlit app logic
-def main():
-    st.title("SANDRA - Integrated Sand Battery Solution")
-
-    # Connect to the database and initialize if necessary
-    conn, db_was_just_created = connect_db()
-
-    if db_was_just_created:
-        initialize_db(conn)
-
-    st.sidebar.title("Navigation")
-    options = ["Database Overview", "Add Data", "Update Data"]
-    choice = st.sidebar.radio("Select an option", options)
-
-    if choice == "Database Overview":
-        display_dataframes(conn)
-
-    elif choice == "Add Data":
-        st.subheader("Add New Data")
-        table_name = st.selectbox("Select Table", ["energy_storage", "real_time_monitoring", "applications"])
-
-        if table_name == "energy_storage":
-            tech = st.text_input("Technology")
-            capacity = st.number_input("Capacity (kWh)", min_value=0.0)
-            efficiency = st.number_input("Efficiency (%)", min_value=0.0, max_value=100.0)
-            status = st.text_input("Status")
-            if st.button("Add Entry"):
-                conn.execute(
-                    "INSERT INTO energy_storage (technology, capacity, efficiency, status) VALUES (?, ?, ?, ?)",
-                    (tech, capacity, efficiency, status)
-                )
-                conn.commit()
-                st.success("Entry added successfully!")
-
-        elif table_name == "real_time_monitoring":
-            param = st.text_input("Parameter")
-            value = st.number_input("Value")
-            unit = st.text_input("Unit")
-            timestamp = st.text_input("Timestamp")
-            if st.button("Add Entry"):
-                conn.execute(
-                    "INSERT INTO real_time_monitoring (parameter, value, unit, timestamp) VALUES (?, ?, ?, ?)",
-                    (param, value, unit, timestamp)
-                )
-                conn.commit()
-                st.success("Entry added successfully!")
-
-        elif table_name == "applications":
-            sector = st.text_input("Sector")
-            description = st.text_area("Description")
-            impact = st.text_area("Impact")
-            if st.button("Add Entry"):
-                conn.execute(
-                    "INSERT INTO applications (sector, description, impact) VALUES (?, ?, ?)",
-                    (sector, description, impact)
-                )
-                conn.commit()
-                st.success("Entry added successfully!")
-
-    elif choice == "Update Data":
-        st.subheader("Update Existing Data")
-        st.info("Feature coming soon!")
-
-    conn.close()
-
-if __name__ == "__main__":
-    main()
-
-
-
-
-def search_data(conn, table_name, column_name, query):
-    """Search for data in a specific column of a table."""
-    cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM {table_name} WHERE {column_name} LIKE ?", ('%' + query + '%',))
-    data = cursor.fetchall()
-    columns = [description[0] for description in cursor.description]
-    return pd.DataFrame(data, columns=columns)
-
-# In Streamlit UI, add search functionality
-search_query = st.text_input("Search Data:")
-if search_query:
-    st.subheader(f"Search Results for '{search_query}'")
-    energy_storage_df = search_data(conn, "energy_storage", "technology", search_query)
-    st.dataframe(energy_storage_df)
-
-
-# Dynamic Data Visualization with Altair
-st.header("Data Visualization")
-
-# Load energy storage data
-energy_storage_df = load_table(conn, "energy_storage")
-
-# Bar Chart for comparing efficiency and capacity
-st.subheader("Energy Storage: Efficiency vs Capacity")
-chart = alt.Chart(energy_storage_df).mark_bar().encode(
-    x='technology:N',
-    y='capacity:Q',
-    color='technology:N',
-    tooltip=['technology:N', 'capacity:Q', 'efficiency:Q']
-).properties(
-    title='Energy Storage Capacity and Efficiency'
-)
-st.altair_chart(chart, use_container_width=True)
-
-def update_entry(conn, table_name, entry_id, updated_values):
-    """Update a specific entry in the database."""
-    cursor = conn.cursor()
-    columns = ", ".join([f"{key} = ?" for key in updated_values.keys()])
-    values = tuple(updated_values.values()) + (entry_id,)
-    cursor.execute(f"UPDATE {table_name} SET {columns} WHERE id = ?", values)
+    """)
     conn.commit()
 
-# Streamlit UI for updating data
-st.subheader("Update Data")
-
-# Choose table and entry to update
-table_name = st.selectbox("Select Table", ["energy_storage", "real_time_monitoring", "applications"])
-entry_id = st.number_input("Entry ID", min_value=1)
-
-if table_name == "energy_storage":
-    tech = st.text_input("Technology")
-    capacity = st.number_input("Capacity (kWh)")
-    efficiency = st.number_input("Efficiency (%)")
-    status = st.text_input("Status")
-
-    if st.button("Update Entry"):
-        updated_values = {
-            "technology": tech,
-            "capacity": capacity,
-            "efficiency": efficiency,
-            "status": status
-        }
-        update_entry(conn, "energy_storage", entry_id, updated_values)
-        st.success(f"Entry with ID {entry_id} updated successfully!")
-
-def delete_entry(conn, table_name, entry_id):
-    """Delete an entry from a table."""
+# Adding data to the tables
+def add_data(conn, table_name, name, description):
     cursor = conn.cursor()
-    cursor.execute(f"DELETE FROM {table_name} WHERE id = ?", (entry_id,))
+    cursor.execute(f"INSERT INTO {table_name} (name, description) VALUES (?, ?)", (name, description))
     conn.commit()
 
-# Streamlit UI for deleting data
-st.subheader("Delete Data Entry")
-entry_id = st.number_input("Entry ID", min_value=1)
+# Fetch data from a specific table
+def fetch_data(conn, table_name):
+    query = f"SELECT * FROM {table_name}"
+    return pd.read_sql(query, conn)
 
-if st.button("Delete Entry"):
-    delete_entry(conn, "energy_storage", entry_id)
-    st.success(f"Entry with ID {entry_id} deleted successfully!")
-
-
-def export_to_csv(df, filename):
-    """Export a DataFrame to a CSV file."""
-    df.to_csv(filename, index=False)
-
-# Streamlit UI for exporting data
-st.subheader("Export Data to CSV")
-if st.button("Export Energy Storage Data"):
-    energy_storage_df = load_table(conn, "energy_storage")
-    export_to_csv(energy_storage_df, "energy_storage_data.csv")
-    st.success("Data exported as energy_storage_data.csv")
-
-
-import time
-
-# Real-Time Monitoring Dashboard
-def get_real_time_data(conn):
-    """Fetch latest data from real-time monitoring."""
+# Update data in the table
+def update_data(conn, table_name, record_id, name, description):
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM real_time_monitoring ORDER BY timestamp DESC LIMIT 1")
-    data = cursor.fetchone()
-    return data
+    cursor.execute(f"""
+        UPDATE {table_name}
+        SET name = ?, description = ?
+        WHERE id = ?
+    """, (name, description, record_id))
+    conn.commit()
 
-st.header("Real-Time Monitoring Dashboard")
-while True:
-    real_time_data = get_real_time_data(conn)
-    st.write(f"Latest Data: {real_time_data}")
-    time.sleep(5)  # Refresh every 5 seconds
+# Streamlit App
+st.title("Sand Battery Solutions Database")
 
+# Sidebar for navigation
+nav = st.sidebar.radio("Navigation", ["Database Overview", "Add Data", "Update Data", "Visualizations"])
+
+# Connect to database and initialize
+conn = connect_db()
+initialize_db(conn)
+
+if nav == "Database Overview":
+    st.header("Database Overview")
+    tables = ["energy_storage", "real_time_monitoring", "applications"]
+    for table in tables:
+        st.subheader(table.capitalize())
+        data = fetch_data(conn, table)
+        st.dataframe(data)
+
+elif nav == "Add Data":
+    st.header("Add Data")
+    table = st.selectbox("Choose a table to add data", ["energy_storage", "real_time_monitoring", "applications"])
+    name = st.text_input("Name")
+    description = st.text_area("Description")
+    if st.button("Add Data"):
+        if name and description:
+            add_data(conn, table, name, description)
+            st.success(f"Data added to {table}")
+        else:
+            st.error("All fields are required!")
+
+elif nav == "Update Data":
+    st.header("Update Data")
+    table = st.selectbox("Choose a table to update data", ["energy_storage", "real_time_monitoring", "applications"])
+    data = fetch_data(conn, table)
+    if not data.empty:
+        st.dataframe(data)
+        record_id = st.number_input("Enter ID of the record to update", min_value=1, step=1)
+        name = st.text_input("Updated Name")
+        description = st.text_area("Updated Description")
+        if st.button("Update Data"):
+            if name and description:
+                update_data(conn, table, record_id, name, description)
+                st.success("Data updated successfully")
+            else:
+                st.error("All fields are required!")
+    else:
+        st.warning("No data available in the table")
+
+elif nav == "Visualizations":
+    st.header("Visualizations")
+    table = st.selectbox("Choose a table to visualize", ["energy_storage", "real_time_monitoring", "applications"])
+    data = fetch_data(conn, table)
+    if not data.empty:
+        chart = alt.Chart(data).mark_bar().encode(
+            x="id:O",
+            y="name:N",
+            tooltip=["name", "description"]
+        ).interactive()
+        st.altair_chart(chart, use_container_width=True)
+    else:
+        st.warning("No data available to visualize")
