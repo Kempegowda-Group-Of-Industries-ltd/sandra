@@ -142,7 +142,7 @@ elif nav == "Search Data":
             st.dataframe(data)
         else:
             st.warning("No matching records found")
-
+            
 elif nav == "Visualizations":
     st.header("Visualizations")
     table = st.selectbox("Choose a table to visualize", ["energy_storage", "real_time_monitoring", "applications"])
@@ -158,49 +158,49 @@ elif nav == "Visualizations":
         st.warning("No data available to visualize")
 
 
-if not data.empty:
-    pie_chart = alt.Chart(data).mark_arc().encode(
+   if not data.empty:
+      pie_chart = alt.Chart(data).mark_arc().encode(
         theta=alt.Theta(field="id", type="quantitative"),
         color=alt.Color(field="name", type="nominal"),
         tooltip=["name", "description"]
-    ).properties(
-        title="Distribution of Records by Name"
-    )
-    st.altair_chart(pie_chart, use_container_width=True)
+      ).properties(
+          title="Distribution of Records by Name"
+      )
+      st.altair_chart(pie_chart, use_container_width=True)
 
-if not data.empty:
-    scatter_plot = alt.Chart(data).mark_circle(size=100).encode(
+  if not data.empty:
+      scatter_plot = alt.Chart(data).mark_circle(size=100).encode(
         x=alt.X("id:O", axis=alt.Axis(title="ID")),
         y=alt.Y("name:N", axis=alt.Axis(title="Name")),
         color="name:N",
         tooltip=["name", "description"]
-    ).interactive().properties(
+      ).interactive().properties(
         title="Scatter Plot of Records"
-    )
-    st.altair_chart(scatter_plot, use_container_width=True)
-if not data.empty:
-    line_chart = alt.Chart(data).mark_line(point=True).encode(
+       )
+      st.altair_chart(scatter_plot, use_container_width=True)
+  if not data.empty:
+       line_chart = alt.Chart(data).mark_line(point=True).encode(
         x=alt.X("id:O", axis=alt.Axis(title="ID")),
         y=alt.Y("id:Q", axis=alt.Axis(title="ID (Quantitative for Line)")),
         color="name:N",
         tooltip=["name", "description"]
-    ).interactive().properties(
+     ).interactive().properties(
         title="Trend of IDs Across Records"
-    )
-    st.altair_chart(line_chart, use_container_width=True)
+     )
+      st.altair_chart(line_chart, use_container_width=True)
 
-if not data.empty:
-    stacked_bar_chart = alt.Chart(data).mark_bar().encode(
+  if not data.empty:
+      stacked_bar_chart = alt.Chart(data).mark_bar().encode(
         x=alt.X("name:N", axis=alt.Axis(title="Name")),
         y=alt.Y("id:Q", axis=alt.Axis(title="ID")),
         color="name:N",
         tooltip=["name", "description"]
-    ).properties(
+     ).properties(
         title="Stacked Bar Chart of Names"
-    )
-    st.altair_chart(stacked_bar_chart, use_container_width=True)
+     )
+     st.altair_chart(stacked_bar_chart, use_container_width=True)
 
-if not data.empty:
+  if not data.empty:
     heatmap = alt.Chart(data).mark_rect().encode(
         x=alt.X("name:N", axis=alt.Axis(title="Name")),
         y=alt.Y("id:O", axis=alt.Axis(title="ID")),
@@ -210,7 +210,7 @@ if not data.empty:
         title="Heatmap of IDs by Name"
     )
     st.altair_chart(heatmap, use_container_width=True)
-if not data.empty:
+  if not data.empty:
     area_chart = alt.Chart(data).mark_area(opacity=0.5).encode(
         x=alt.X("id:O", axis=alt.Axis(title="ID")),
         y=alt.Y("id:Q", axis=alt.Axis(title="ID Value")),
@@ -221,7 +221,7 @@ if not data.empty:
     )
     st.altair_chart(area_chart, use_container_width=True)
 
-if not data.empty:
+ if not data.empty:
     histogram = alt.Chart(data).mark_bar().encode(
         x=alt.X("id:Q", bin=True, axis=alt.Axis(title="ID Bins")),
         y=alt.Y("count():Q", axis=alt.Axis(title="Count")),
@@ -231,7 +231,7 @@ if not data.empty:
         title="Histogram of IDs"
     )
     st.altair_chart(histogram, use_container_width=True)
-if not data.empty:
+ if not data.empty:
     brush = alt.selection(type="interval")
 
     scatter_with_brush = alt.Chart(data).mark_circle(size=100).encode(
@@ -247,7 +247,7 @@ if not data.empty:
 
     st.altair_chart(scatter_with_brush, use_container_width=True)
 
-if not data.empty:
+  if not data.empty:
     bubble_chart = alt.Chart(data).mark_circle().encode(
         x=alt.X("id:Q", axis=alt.Axis(title="ID")),
         y=alt.Y("id:Q", axis=alt.Axis(title="ID Value")),
@@ -259,7 +259,7 @@ if not data.empty:
     )
     st.altair_chart(bubble_chart, use_container_width=True)
 
-if not data.empty:
+  if not data.empty:
     sorted_bar_chart = alt.Chart(data).mark_bar().encode(
         x=alt.X("id:Q", axis=alt.Axis(title="ID Value")),
         y=alt.Y("name:N", sort="-x", axis=alt.Axis(title="Name")),
@@ -272,7 +272,7 @@ if not data.empty:
 
 
 
-if not data.empty:
+ if not data.empty:
     text_chart = alt.Chart(data).mark_text(size=14).encode(
         x=alt.X("id:O", axis=alt.Axis(title="ID")),
         y=alt.Y("name:N", axis=alt.Axis(title="Name")),
