@@ -205,3 +205,128 @@ if not data.empty:
         title="Heatmap of IDs by Name"
     )
     st.altair_chart(heatmap, use_container_width=True)
+if not data.empty:
+    area_chart = alt.Chart(data).mark_area(opacity=0.5).encode(
+        x=alt.X("id:O", axis=alt.Axis(title="ID")),
+        y=alt.Y("id:Q", axis=alt.Axis(title="ID Value")),
+        color=alt.Color("name:N", legend=alt.Legend(title="Name")),
+        tooltip=["name", "description"]
+    ).properties(
+        title="Area Chart of IDs by Name"
+    )
+    st.altair_chart(area_chart, use_container_width=True)
+
+if not data.empty:
+    histogram = alt.Chart(data).mark_bar().encode(
+        x=alt.X("id:Q", bin=True, axis=alt.Axis(title="ID Bins")),
+        y=alt.Y("count():Q", axis=alt.Axis(title="Count")),
+        color=alt.Color("name:N", legend=alt.Legend(title="Name")),
+        tooltip=["name", "description"]
+    ).properties(
+        title="Histogram of IDs"
+    )
+    st.altair_chart(histogram, use_container_width=True)
+if not data.empty:
+    brush = alt.selection(type="interval")
+
+    scatter_with_brush = alt.Chart(data).mark_circle(size=100).encode(
+        x=alt.X("id:O", axis=alt.Axis(title="ID")),
+        y=alt.Y("id:Q", axis=alt.Axis(title="ID Value")),
+        color=alt.condition(brush, "name:N", alt.value("lightgray")),
+        tooltip=["name", "description"]
+    ).add_selection(
+        brush
+    ).properties(
+        title="Scatter Plot with Interactive Brush Filter"
+    )
+
+    st.altair_chart(scatter_with_brush, use_container_width=True)
+
+if not data.empty:
+    bubble_chart = alt.Chart(data).mark_circle().encode(
+        x=alt.X("id:Q", axis=alt.Axis(title="ID")),
+        y=alt.Y("id:Q", axis=alt.Axis(title="ID Value")),
+        size=alt.Size("id:Q", title="Size by ID"),
+        color="name:N",
+        tooltip=["name", "description"]
+    ).properties(
+        title="Bubble Chart of IDs by Name"
+    )
+    st.altair_chart(bubble_chart, use_container_width=True)
+
+if not data.empty:
+    sorted_bar_chart = alt.Chart(data).mark_bar().encode(
+        x=alt.X("id:Q", axis=alt.Axis(title="ID Value")),
+        y=alt.Y("name:N", sort="-x", axis=alt.Axis(title="Name")),
+        color="name:N",
+        tooltip=["name", "description"]
+    ).properties(
+        title="Bar Chart Sorted by ID"
+    )
+    st.altair_chart(sorted_bar_chart, use_container_width=True)
+
+
+if not data.empty:
+    base = alt.Chart(data).encode(
+        x=alt.X("id:O", axis=alt.Axis(title="ID"))
+    )
+
+    bar = base.mark_bar(color="skyblue").encode(
+        y=alt.Y("id:Q", axis=alt.Axis(title="ID Value"))
+    )
+
+    line = base.mark_line(color="orange").encode(
+        y=alt.Y("id:Q", axis=alt.Axis(title="ID Value (Line)"))
+    )
+
+    dual_chart = alt.layer(bar, line).resolve_scale(
+        y="independent"
+    ).properties(
+        title="Dual-Axis Chart: Line and Bar"
+    )
+    st.altair_chart(dual_chart, use_container_width=True)
+
+
+if not data.empty:
+    text_chart = alt.Chart(data).mark_text(size=14).encode(
+        x=alt.X("id:O", axis=alt.Axis(title="ID")),
+        y=alt.Y("name:N", axis=alt.Axis(title="Name")),
+        text="description:N",
+        color=alt.Color("name:N", legend=alt.Legend(title="Name")),
+        tooltip=["name", "description"]
+    ).properties(
+        title="Text Chart Displaying Descriptions"
+    )
+    st.altair_chart(text_chart, use_container_width=True)
+
+
+if not data.empty:
+    text_chart = alt.Chart(data).mark_text(size=14).encode(
+        x=alt.X("id:O", axis=alt.Axis(title="ID")),
+        y=alt.Y("name:N", axis=alt.Axis(title="Name")),
+        text="description:N",
+        color=alt.Color("name:N", legend=alt.Legend(title="Name")),
+        tooltip=["name", "description"]
+    ).properties(
+        title="Text Chart Displaying Descriptions"
+    )
+    st.altair_chart(text_chart, use_container_width=True)
+
+
+if not data.empty:
+    dropdown = alt.binding_select(options=data["name"].unique().tolist(), name="Select Name:")
+    selection = alt.selection_single(fields=["name"], bind=dropdown)
+
+    filtered_chart = alt.Chart(data).mark_bar().encode(
+        x=alt.X("id:Q", axis=alt.Axis(title="ID")),
+        y=alt.Y("id:Q", axis=alt.Axis(title="ID Value")),
+        color="name:N",
+        tooltip=["name", "description"]
+    ).add_selection(
+        selection
+    ).transform_filter(
+        selection
+    ).properties(
+        title="Bar Chart with Interactive Dropdown Filter"
+    )
+    st.altair_chart(filtered_chart, use_container_width=True)
