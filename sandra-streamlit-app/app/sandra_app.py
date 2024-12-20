@@ -157,8 +157,7 @@ elif nav == "Visualizations":
     else:
         st.warning("No data available to visualize")
 
-
-   if not data.empty:
+if not data.empty:
       pie_chart = alt.Chart(data).mark_arc().encode(
         theta=alt.Theta(field="id", type="quantitative"),
         color=alt.Color(field="name", type="nominal"),
