@@ -151,3 +151,15 @@ elif nav == "Visualizations":
         st.altair_chart(chart, use_container_width=True)
     else:
         st.warning("No data available to visualize")
+
+
+if not data.empty:
+    pie_chart = alt.Chart(data).mark_arc().encode(
+        theta=alt.Theta(field="id", type="quantitative"),
+        color=alt.Color(field="name", type="nominal"),
+        tooltip=["name", "description"]
+    ).properties(
+        title="Distribution of Records by Name"
+    )
+    st.altair_chart(pie_chart, use_container_width=True)
+
