@@ -233,19 +233,20 @@ elif nav == "Visualizations":
         )
         st.altair_chart(histogram, use_container_width=True)
 
-        # Scatter Plot with Brush
-        brush = alt.selection(type="interval")
-        scatter_with_brush = alt.Chart(data).mark_circle(size=100).encode(
-            x=alt.X("id:O", axis=alt.Axis(title="ID")),
-            y=alt.Y("id:Q", axis=alt.Axis(title="ID Value")),
-            color=alt.condition(brush, "name:N", alt.value("lightgray")),
-            tooltip=["name", "description"]
-        ).add_selection(
-            brush
-        ).properties(
-            title="Scatter Plot with Interactive Brush Filter"
-        )
-        st.altair_chart(scatter_with_brush, use_container_width=True)
+        # Scatter Plot with Brush using updated Altair API
+      brush = alt.selection_interval()  # Updated from alt.selection(type="interval")
+       scatter_with_brush = alt.Chart(data).mark_circle(size=100).encode(
+        x=alt.X("id:O", axis=alt.Axis(title="ID")),
+        y=alt.Y("id:Q", axis=alt.Axis(title="ID Value")),
+        color=alt.condition(brush, "name:N", alt.value("lightgray")),
+        tooltip=["name", "description"]
+            ).add_params(  # Updated from add_selection()
+                brush
+            ).properties(
+                title="Scatter Plot with Interactive Brush Filter"
+            )
+
+st.altair_chart(scatter_with_brush, use_container_width=True)
 
         # Bubble Chart
         bubble_chart = alt.Chart(data).mark_circle().encode(
