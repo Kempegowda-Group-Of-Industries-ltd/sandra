@@ -173,3 +173,35 @@ if not data.empty:
         title="Scatter Plot of Records"
     )
     st.altair_chart(scatter_plot, use_container_width=True)
+if not data.empty:
+    line_chart = alt.Chart(data).mark_line(point=True).encode(
+        x=alt.X("id:O", axis=alt.Axis(title="ID")),
+        y=alt.Y("id:Q", axis=alt.Axis(title="ID (Quantitative for Line)")),
+        color="name:N",
+        tooltip=["name", "description"]
+    ).interactive().properties(
+        title="Trend of IDs Across Records"
+    )
+    st.altair_chart(line_chart, use_container_width=True)
+
+if not data.empty:
+    stacked_bar_chart = alt.Chart(data).mark_bar().encode(
+        x=alt.X("name:N", axis=alt.Axis(title="Name")),
+        y=alt.Y("id:Q", axis=alt.Axis(title="ID")),
+        color="name:N",
+        tooltip=["name", "description"]
+    ).properties(
+        title="Stacked Bar Chart of Names"
+    )
+    st.altair_chart(stacked_bar_chart, use_container_width=True)
+
+if not data.empty:
+    heatmap = alt.Chart(data).mark_rect().encode(
+        x=alt.X("name:N", axis=alt.Axis(title="Name")),
+        y=alt.Y("id:O", axis=alt.Axis(title="ID")),
+        color=alt.Color("id:Q", scale=alt.Scale(scheme="blues"), title="ID Value"),
+        tooltip=["name", "description"]
+    ).properties(
+        title="Heatmap of IDs by Name"
+    )
+    st.altair_chart(heatmap, use_container_width=True)
