@@ -163,3 +163,13 @@ if not data.empty:
     )
     st.altair_chart(pie_chart, use_container_width=True)
 
+if not data.empty:
+    scatter_plot = alt.Chart(data).mark_circle(size=100).encode(
+        x=alt.X("id:O", axis=alt.Axis(title="ID")),
+        y=alt.Y("name:N", axis=alt.Axis(title="Name")),
+        color="name:N",
+        tooltip=["name", "description"]
+    ).interactive().properties(
+        title="Scatter Plot of Records"
+    )
+    st.altair_chart(scatter_plot, use_container_width=True)
