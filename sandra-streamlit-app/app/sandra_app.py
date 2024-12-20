@@ -143,7 +143,6 @@ elif nav == "Search Data":
         else:
             st.warning("No matching records found")
 
-
  elif nav == "Visualizations":
     st.header("Visualizations")
     table = st.selectbox("Choose a table to visualize", ["energy_storage", "real_time_monitoring", "applications"])
