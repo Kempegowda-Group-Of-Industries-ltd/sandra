@@ -67,7 +67,7 @@ def search_data(conn, table_name, keyword):
     return pd.read_sql(query, conn, params=(f"%{keyword}%", f"%{keyword}%"))
 
 # Streamlit App
-st.title("Sand Battery Solutions Database")
+st.title("Sandra: Sand Battery Solutions Database")
 
 # Sidebar for navigation
 nav = st.sidebar.radio("Navigation", ["Database Overview", "Add Data", "Update Data", "Delete Data", "Search Data", "Visualizations"])
