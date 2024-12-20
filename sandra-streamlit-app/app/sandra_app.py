@@ -280,22 +280,3 @@ if not data.empty:
     st.altair_chart(text_chart, use_container_width=True)
 
 
-
-
-if not data.empty:
-    dropdown = alt.binding_select(options=data["name"].unique().tolist(), name="Select Name:")
-    selection = alt.selection_single(fields=["name"], bind=dropdown)
-
-    filtered_chart = alt.Chart(data).mark_bar().encode(
-        x=alt.X("id:Q", axis=alt.Axis(title="ID")),
-        y=alt.Y("id:Q", axis=alt.Axis(title="ID Value")),
-        color="name:N",
-        tooltip=["name", "description"]
-    ).add_selection(
-        selection
-    ).transform_filter(
-        selection
-    ).properties(
-        title="Bar Chart with Interactive Dropdown Filter"
-    )
-    st.altair_chart(filtered_chart, use_container_width=True)
