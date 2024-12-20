@@ -4,22 +4,13 @@ import streamlit as st
 import altair as alt
 import pandas as pd
 
-# Example dataset
-data = pd.DataFrame({
-    "id": range(1, 11),
-    "name": ["Item A", "Item B", "Item C", "Item D", "Item E", "Item F", "Item G", "Item H", "Item I", "Item J"],
-    "description": ["Desc A", "Desc B", "Desc C", "Desc D", "Desc E", "Desc F", "Desc G", "Desc H", "Desc I", "Desc J"]
-})
+
 
 # Example: Load from a CSV file
 data = pd.read_csv("your_data_file.csv")
-
 required_columns = {"id", "name", "description"}
 if not required_columns.issubset(data.columns):
     st.error(f"The dataset must contain the following columns: {', '.join(required_columns)}")
-
-import streamlit as st
-import altair as alt
 
 # Define or load your dataset
 data = pd.DataFrame({
@@ -27,23 +18,6 @@ data = pd.DataFrame({
     "name": ["Item A", "Item B", "Item C", "Item D", "Item E", "Item F", "Item G", "Item H", "Item I", "Item J"],
     "description": ["Desc A", "Desc B", "Desc C", "Desc D", "Desc E", "Desc F", "Desc G", "Desc H", "Desc I", "Desc J"]
 })
-
-# Validate the dataset
-if not data.empty:
-    scatter_plot = alt.Chart(data).mark_circle(size=60).encode(
-        x="id:Q",
-        y="id:Q",
-        color="name:N",
-        tooltip=["name", "description"]
-    ).properties(
-        title="Scatter Plot"
-    )
-    st.altair_chart(scatter_plot, use_container_width=True)
-else:
-    st.error("The dataset is empty. Please load valid data.")
-
-
-
 
 # Database connection and initialization
 def connect_db():
