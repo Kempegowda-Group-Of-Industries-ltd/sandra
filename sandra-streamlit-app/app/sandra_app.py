@@ -266,26 +266,6 @@ if not data.empty:
     st.altair_chart(sorted_bar_chart, use_container_width=True)
 
 
-if not data.empty:
-    base = alt.Chart(data).encode(
-        x=alt.X("id:O", axis=alt.Axis(title="ID"))
-    )
-
-    bar = base.mark_bar(color="skyblue").encode(
-        y=alt.Y("id:Q", axis=alt.Axis(title="ID Value"))
-    )
-
-    line = base.mark_line(color="orange").encode(
-        y=alt.Y("id:Q", axis=alt.Axis(title="ID Value (Line)"))
-    )
-
-    dual_chart = alt.layer(bar, line).resolve_scale(
-        y="independent"
-    ).properties(
-        title="Dual-Axis Chart: Line and Bar"
-    )
-    st.altair_chart(dual_chart, use_container_width=True)
-
 
 if not data.empty:
     text_chart = alt.Chart(data).mark_text(size=14).encode(
@@ -300,17 +280,6 @@ if not data.empty:
     st.altair_chart(text_chart, use_container_width=True)
 
 
-if not data.empty:
-    text_chart = alt.Chart(data).mark_text(size=14).encode(
-        x=alt.X("id:O", axis=alt.Axis(title="ID")),
-        y=alt.Y("name:N", axis=alt.Axis(title="Name")),
-        text="description:N",
-        color=alt.Color("name:N", legend=alt.Legend(title="Name")),
-        tooltip=["name", "description"]
-    ).properties(
-        title="Text Chart Displaying Descriptions"
-    )
-    st.altair_chart(text_chart, use_container_width=True)
 
 
 if not data.empty:
