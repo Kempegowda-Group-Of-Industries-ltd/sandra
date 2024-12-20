@@ -6,18 +6,7 @@ import pandas as pd
 
 
 
-# Example: Load from a CSV file
-data = pd.read_csv("your_data_file.csv")
-required_columns = {"id", "name", "description"}
-if not required_columns.issubset(data.columns):
-    st.error(f"The dataset must contain the following columns: {', '.join(required_columns)}")
 
-# Define or load your dataset
-data = pd.DataFrame({
-    "id": range(1, 11),
-    "name": ["Item A", "Item B", "Item C", "Item D", "Item E", "Item F", "Item G", "Item H", "Item I", "Item J"],
-    "description": ["Desc A", "Desc B", "Desc C", "Desc D", "Desc E", "Desc F", "Desc G", "Desc H", "Desc I", "Desc J"]
-})
 
 # Database connection and initialization
 def connect_db():
